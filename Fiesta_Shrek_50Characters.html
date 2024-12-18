@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fiesta Shrek</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f3f3;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        header {
+            background-color: #7BB661;
+            color: white;
+            padding: 20px;
+            font-size: 24px;
+        }
+        .character {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px;
+            display: inline-block;
+            width: 200px;
+            background-color: white;
+        }
+        .character img {
+            max-width: 100%;
+            border-radius: 5px;
+        }
+        .character button {
+            background-color: #7BB661;
+            color: white;
+            border: none;
+            padding: 10px;
+            margin-top: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .character button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        #taken-list {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #e7ffe7;
+            border-radius: 10px;
+            display: inline-block;
+            width: 80%;
+            text-align: left;
+        }
+        footer {
+            margin-top: 50px;
+            padding: 20px;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        ¡Bienvenidos a la Fiesta Shrek! 🎉
+    </header>
+
+    <div class="container" id="character-list"></div>
+
+    <div id="taken-list">
+        <h3>Personajes ya tomados:</h3>
+        <ul id="taken-list-items"></ul>
+        <button onclick="unlockAdminOptions()">Opciones de Administrador</button>
+    </div>
+
+    <footer>
+        ¡Gracias por participar! 🥳
+    </footer>
+
+    <script>
+        const characters = [
+            { name: "Shrek", description: "El ogro verde favorito de todos.", img: "https://via.placeholder.com/150" },
+            { name: "Fiona", description: "La princesa convertida en ogra.", img: "https://via.placeholder.com/150" },
+            { name: "Burro", description: "El mejor amigo parlanchín de Shrek.", img: "https://via.placeholder.com/150" },
+            { name: "Gato con Botas", description: "El espadachín felino.", img: "https://via.placeholder.com/150" },
+            { name: "Lord Farquaad", description: "El villano que quiere ser rey.", img: "https://via.placeholder.com/150" },
+            { name: "Hada Madrina", description: "La manipuladora hada mágica.", img: "https://via.placeholder.com/150" },
+            { name: "Rey Harold", description: "El rey convertido en rana.", img: "https://via.placeholder.com/150" },
+            { name: "Reina Lillian", description: "La reina bondadosa.", img: "https://via.placeholder.com/150" },
+            { name: "Dragon", description: "El dragón enamorado de Burro.", img: "https://via.placeholder.com/150" },
+            { name: "Arturo", description: "El joven rey Arturo.", img: "https://via.placeholder.com/150" },
+            { name: "Merlín", description: "El mago excéntrico.", img: "https://via.placeholder.com/150" },
+            { name: "Cenicienta", description: "La princesa encantadora.", img: "https://via.placeholder.com/150" },
+            { name: "Blancanieves", description: "Canta con animales.", img: "https://via.placeholder.com/150" },
+            { name: "Rapunzel", description: "La princesa del cabello largo.", img: "https://via.placeholder.com/150" },
+            { name: "Jengibre", description: "La galleta valiente.", img: "https://via.placeholder.com/150" },
+            { name: "Pinocho", description: "El muñeco que no puede mentir.", img: "https://via.placeholder.com/150" },
+            { name: "Rumpelstiltskin", description: "El tramposo enemigo.", img: "https://via.placeholder.com/150" },
+            { name: "Capitán Garfio", description: "El pirata de cuentos.", img: "https://via.placeholder.com/150" },
+            { name: "Felina", description: "Compañera del Gato con Botas.", img: "https://via.placeholder.com/150" },
+            { name: "Ricitos de Oro", description: "Amiga de los osos.", img: "https://via.placeholder.com/150" }
+        ];
+        const takenCharacters = [];
+        const adminPassword = "admin123";
+        let isAdminUnlocked = false;
+
+        function renderCharacters() {
+            const container = document.getElementById("character-list");
+            container.innerHTML = "";
+            characters.forEach((character, index) => {
+                const div = document.createElement("div");
+                div.className = "character";
+                div.innerHTML = `
+                    <img src="${character.img}" alt="${character.name}">
+                    <h4>${character.name}</h4>
+                    <p>${character.description}</p>
+                    <button ${takenCharacters.some(t => t.name === character.name) ? 'disabled' : ''} onclick="selectCharacter(${index})">Elegir</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function selectCharacter(index) {
+            if (takenCharacters.some(t => t.name === characters[index].name)) return alert("Personaje ya tomado.");
+            const person = prompt(`Has elegido a ${characters[index].name}. Ingresa tu nombre:`);
+            if (person) {
+                takenCharacters.push({ name: characters[index].name, person });
+                updateTakenList();
+                renderCharacters();
+            }
+        }
+
+        function updateTakenList() {
+            const list = document.getElementById("taken-list-items");
+            list.innerHTML = "";
+            takenCharacters.forEach((taken, index) => {
+                const li = document.createElement("li");
+                li.textContent = `${taken.name} - ${taken.person}`;
+                if (isAdminUnlocked) {
+                    const removeButton = document.createElement("button");
+                    removeButton.textContent = "Liberar";
+                    removeButton.style.marginLeft = "10px";
+                    removeButton.onclick = () => removeCharacter(index);
+                    li.appendChild(removeButton);
+                }
+                list.appendChild(li);
+            });
+        }
+
+        function unlockAdminOptions() {
+            const pass = prompt("Por favor, ingresa la contraseña de administrador:");
+            if (pass === adminPassword) {
+                isAdminUnlocked = true;
+                updateTakenList();
+                alert("Modo administrador activado.");
+            } else {
+                alert("Contraseña incorrecta.");
+            }
+        }
+
+        function removeCharacter(index) {
+            takenCharacters.splice(index, 1);
+            updateTakenList();
+            renderCharacters();
+        }
+
+        renderCharacters();
+    </script>
+</body>
+</html>
